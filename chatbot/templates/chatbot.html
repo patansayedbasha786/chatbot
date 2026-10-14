@@ -1,0 +1,593 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatBuddy - Image Search</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, sans-serif;
+    background: #fdfeff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 520px;
+    height: 96vh;
+    background: rgb(237, 234, 234);
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 35px #33303015;
+}
+
+.header {
+    background: #6c7979;
+    color: rgb(245, 240, 240);
+    padding: 17px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bot-icon {
+    width: 45px;
+    height: 45px;
+    background: rgb(249, 248, 248);
+    color: #000000;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 26px;
+}
+
+.header h2 { font-size: 19px; }
+.header p { font-size: 12px; margin-top: 5px; color: #e3dfff; }
+
+.chat-body {
+    flex: 1;
+    padding: 18px;
+    overflow-y: auto;
+    background: #fafaff;
+}
+
+.date {
+    text-align: center;
+    color: #999;
+    font-size: 11px;
+    margin-bottom: 22px;
+}
+
+.message {
+    max-width: 88%;
+    padding: 12px 14px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.bot-message {
+    background: #ecebfa;
+    color: #29263c;
+    border-bottom-left-radius: 4px;
+}
+
+.user-message {
+    background: #58575e;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.preview {
+    display: block;
+    width: 180px;
+    max-width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.result-card {
+    min-width: 0;
+    padding: 7px;
+    border-radius: 12px;
+    background: white;
+    border: 1px solid #dedcf0;
+}
+
+.result-card img {
+    width: 100%;
+    height: 125px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f1f0fa;
+}
+
+.result-card p {
+    margin-top: 6px;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.input-area {
+    padding: 14px;
+    border-top: 1px solid #eee;
+    background: white;
+}
+
+.upload-info {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 9px;
+}
+
+.preview-area {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    margin-bottom: 10px;
+    background: #f4f2ff;
+    border-radius: 10px;
+}
+
+.preview-area img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 7px;
+}
+
+.preview-name {
+    flex: 1;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.remove-button {
+    border: 0;
+    background: transparent;
+    color: #c03952;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px;
+    border: 1px solid #dedcf0;
+    border-radius: 15px;
+}
+
+.upload-label {
+    font-size: 23px;
+    color: #6657db;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.upload-label input { display: none; }
+
+.message-input {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+.send-button {
+    width: 43px;
+    height: 43px;
+    border: 0;
+    border-radius: 12px;
+    background: #3d3b46;
+    color: white;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+.send-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.footer-text {
+    text-align: center;
+    color: #aaa;
+    font-size: 11px;
+    margin-top: 10px;
+}
+
+@media (max-width: 520px) {
+    body { background: white; }
+    .chat-container {
+        height: 100dvh;
+        max-width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .chat-body { padding: 14px; }
+}
+
+/* Desktop and mobile redesign */
+body {
+    min-height: 100vh;
+    height: 100vh;
+    padding: 20px;
+    background: #f0f2f8;
+}
+
+.chat-container {
+    width: min(1200px, 96vw);
+    max-width: 1200px;
+    height: min(900px, 94vh);
+    min-height: 500px;
+    border-radius: 22px;
+    box-shadow: 0 12px 45px #20204418;
+}
+
+.header {
+    padding: 20px 28px;
+    flex-shrink: 0;
+}
+
+.header h2 {
+    font-size: 22px;
+}
+
+.header p {
+    font-size: 13px;
+}
+
+.chat-body {
+    padding: 28px clamp(16px, 4vw, 55px);
+}
+
+.message {
+    max-width: 70%;
+    padding: 16px 19px;
+    font-size: 15px;
+}
+
+.user-message {
+    margin-left: auto;
+}
+
+.bot-message {
+    margin-right: auto;
+}
+
+.results-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.result-card {
+    padding: 10px;
+    border-radius: 14px;
+}
+
+.result-card img {
+    height: 180px;
+    object-fit: contain;
+}
+
+.result-card p {
+    font-size: 13px;
+}
+
+.input-area {
+    padding: 18px 28px;
+    flex-shrink: 0;
+}
+
+.input-box {
+    padding: 8px 12px;
+}
+
+.message-input {
+    font-size: 15px;
+}
+
+.send-button {
+    width: 46px;
+    height: 46px;
+}
+
+@media (max-width: 800px) {
+    body {
+        padding: 0;
+    }
+
+    .chat-container {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .header {
+        padding: 15px 18px;
+    }
+
+    .chat-body {
+        padding: 18px 14px;
+    }
+
+    .message {
+        max-width: 88%;
+        font-size: 14px;
+        padding: 12px 14px;
+    }
+
+    .results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .result-card img {
+        height: 135px;
+    }
+
+    .input-area {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+</head>
+
+<body>
+<div class="chat-container">
+
+    <header class="header">
+        <div class="bot-icon">✦</div>
+        <div>
+            <h2>ChatBuddy AI</h2>
+            <p>● Image Search · Online</p>
+        </div>
+    </header>
+
+    <main class="chat-body" id="chat-body">
+        <div class="date">TODAY</div>
+
+        <div class="message bot-message">
+            Hey buddy! 👋<br><br>
+            Upload an image and I'll retrieve the images stored
+            in your database.
+        </div>
+    </main>
+
+    <footer class="input-area">
+        <p class="upload-info">📎 Attach an image to search your collection</p>
+
+        <div class="preview-area" id="preview-area">
+            <img id="preview-image" alt="Selected image preview">
+            <span class="preview-name" id="preview-name"></span>
+            <button class="remove-button" id="remove-image"
+                    type="button" aria-label="Remove image">✕</button>
+        </div>
+
+        <form class="input-box" id="chat-form">
+            <label class="upload-label" title="Choose image">
+                <input type="file" id="image-input" accept="image/*">
+                ➕
+            </label>
+
+            <input
+                type="text"
+                id="message-input"
+                class="message-input"
+                placeholder="Attach an image..."
+                autocomplete="off"
+            >
+
+            <button type="submit" class="send-button"
+                    id="send-button" aria-label="Send">➤</button>
+        </form>
+
+        <p class="footer-text">ChatBuddy · Local prototype</p>
+    </footer>
+</div>
+
+<script>
+const form = document.getElementById("chat-form");
+const fileInput = document.getElementById("image-input");
+const messageInput = document.getElementById("message-input");
+const chatBody = document.getElementById("chat-body");
+const sendButton = document.getElementById("send-button");
+const previewArea = document.getElementById("preview-area");
+const previewImage = document.getElementById("preview-image");
+const previewName = document.getElementById("preview-name");
+const removeButton = document.getElementById("remove-image");
+
+let previewURL = null;
+
+function addMessage(text, type) {
+    const message = document.createElement("div");
+    message.className = `message ${type}`;
+    message.textContent = text;
+    chatBody.appendChild(message);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    return message;
+}
+
+function clearPreview() {
+    if (previewURL) URL.revokeObjectURL(previewURL);
+    previewURL = null;
+    fileInput.value = "";
+    previewImage.removeAttribute("src");
+    previewName.textContent = "";
+    previewArea.style.display = "none";
+}
+
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        clearPreview();
+        addMessage("Please select an image file.", "bot-message");
+        return;
+    }
+
+    if (previewURL) URL.revokeObjectURL(previewURL);
+    previewURL = URL.createObjectURL(file);
+    previewImage.src = previewURL;
+    previewName.textContent = file.name;
+    previewArea.style.display = "flex";
+});
+
+removeButton.addEventListener("click", clearPreview);
+
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const file = fileInput.files[0];
+    const messageText = messageInput.value.trim();
+
+    if (!file) {
+        addMessage(
+            messageText || "Please attach an image first.",
+            "user-message"
+        );
+        if (messageText) {
+            addMessage(
+                "Please attach an image so I can retrieve your stored images.",
+                "bot-message"
+            );
+        }
+        messageInput.value = "";
+        return;
+    }
+
+    const userMessage = document.createElement("div");
+    userMessage.className = "message user-message";
+
+    const uploadedPreview = document.createElement("img");
+    uploadedPreview.className = "preview";
+    uploadedPreview.src = previewURL;
+    uploadedPreview.alt = "Uploaded image";
+    userMessage.appendChild(uploadedPreview);
+
+    if (messageText) {
+        const caption = document.createElement("p");
+        caption.textContent = messageText;
+        userMessage.appendChild(caption);
+    }
+
+    chatBody.appendChild(userMessage);
+
+    const loading = addMessage("Retrieving stored images...", "bot-message");
+    sendButton.disabled = true;
+
+    const data = new FormData();
+    data.append("image", file);
+
+    try {
+        const response = await fetch("/api/search/", {
+            method: "POST",
+            body: data
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "The request failed.");
+        }
+
+        loading.remove();
+
+        if (!result.images || result.images.length === 0) {
+            addMessage(
+                "Your database doesn't have this image ",
+                "bot-message"
+            );
+            return;
+        }
+
+        addMessage(
+            `Retrieved ${result.images.length} image(s) from your database.`,
+            "bot-message"
+        );
+
+        const gallery = document.createElement("div");
+        gallery.className = "message bot-message";
+        gallery.style.maxWidth = "96%";
+
+        const grid = document.createElement("div");
+        grid.className = "results-grid";
+
+        result.images.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "result-card";
+
+            const image = document.createElement("img");
+            image.src = item.image_url;
+            image.alt = item.title || "Stored image";
+            image.loading = "lazy";
+
+            const title = document.createElement("p");
+            title.textContent = item.title || "Untitled";
+
+            const category = document.createElement("p");
+            category.textContent = item.category || "Uncategorized";
+
+            card.append(image, title, category);
+            grid.appendChild(card);
+        });
+
+        gallery.appendChild(grid);
+        chatBody.appendChild(gallery);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+    } catch (error) {
+        loading.textContent =
+            "Could not retrieve images. Check that Django is running and the API is configured correctly.";
+        console.error(error);
+    } finally {
+        sendButton.disabled = false;
+        clearPreview();
+        messageInput.value = "";
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+});
+
+</script>
+</body>
+</html>
